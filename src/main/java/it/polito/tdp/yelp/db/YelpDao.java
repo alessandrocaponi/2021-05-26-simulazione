@@ -8,11 +8,102 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.polito.tdp.yelp.model.Business;
+import it.polito.tdp.yelp.model.EdgeAndWeight;
 import it.polito.tdp.yelp.model.Review;
 import it.polito.tdp.yelp.model.User;
 
 public class YelpDao {
 
+	
+
+	public List<EdgeAndWeight> getArchi(String citta, int anno){
+		String sql ="select b.business_id as id1 ,b1.business_id as id2, (avg(r.stars)-avg(r1.stars)) as peso "
+				+ "from Business b, Reviews r, Business b1, Reviews r1 "
+				+ "where b.business_id = r.business_id "
+				+ "and b.city =? "
+				+ "and year(r.review_date)=? "
+				+ "and b1.business_id = r1.business_id "
+				+ "and b1.city =? "
+				+ "and year(r1.review_date)=? "
+				+ "and b.business_id<>b1.business_id "
+				+ "group by b.business_id,b1.business_id "
+				+ "having peso>'0'";
+		List<EdgeAndWeight> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+		
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, citta);
+			st.setInt(2, anno);
+			st.setString(3, citta);
+			st.setInt(4, anno);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				result.add(new EdgeAndWeight(res.getString("id1"),res.getString("id2"),res.getInt("peso")));
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	
+	public List<String> getVertici(String citta, int anno){
+		String sql= "select distinct b.business_id as id "
+				+ "from Business b, Reviews r "
+				+ "where b.business_id = r.business_id "
+				+ "and b.city =? "
+				+ "and year(r.review_date)=?";
+		List<String> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+		
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, citta);
+			st.setInt(2, anno);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				result.add(res.getString("id"));
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public List<String> getCities(){
+		String sql="select distinct city as c "
+				+ "from Business";
+		List<String> result = new ArrayList<>();
+		Connection conn = DBConnect.getConnection();
+		
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				result.add(res.getString("c"));
+			}
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public List<Business> getAllBusiness(){
 		String sql = "SELECT * FROM Business";
 		List<Business> result = new ArrayList<Business>();

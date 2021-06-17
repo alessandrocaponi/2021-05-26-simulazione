@@ -5,6 +5,8 @@
 package it.polito.tdp.yelp;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.yelp.model.Model;
@@ -35,13 +37,13 @@ public class FXMLController {
     private Button btnPercorso; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbCitta"
-    private ComboBox<?> cmbCitta; // Value injected by FXMLLoader
+    private ComboBox<String> cmbCitta; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtX"
     private TextField txtX; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbAnno"
-    private ComboBox<?> cmbAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> cmbAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbLocale"
     private ComboBox<?> cmbLocale; // Value injected by FXMLLoader
@@ -56,12 +58,31 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	txtResult.clear();
+    	if(cmbCitta==null) {
+    		txtResult.appendText("Seleziona una città");
+    		return;
+    	}
+    	if(cmbAnno==null) {
+    		txtResult.appendText("Seleziona un anno");
+    		return;
+    	}
+    	String msg = model.doCreaGrafo(cmbCitta.getValue(), cmbAnno.getValue());
+    	txtResult.appendText(msg);
     }
 
     @FXML
     void doLocaleMigliore(ActionEvent event) {
-
+    	if(cmbCitta==null) {
+    		txtResult.appendText("Seleziona una città");
+    		return;
+    	}
+    	if(cmbAnno==null) {
+    		txtResult.appendText("Seleziona un anno");
+    		return;
+    	}
+    	String msg = model.doLocaleMigliore();
+    	txtResult.appendText(msg);
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -78,5 +99,18 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	List<Integer> anni =new  ArrayList<>();
+    	anni.add(2005);
+    	anni.add(2006);
+    	anni.add(2007);
+    	anni.add(2008);
+    	anni.add(2009);
+    	anni.add(2010);
+    	anni.add(2011);
+    	anni.add(2012);
+    	anni.add(2013);
+    	cmbAnno.getItems().addAll(anni);
+    	List<String> citta = new ArrayList<>(model.getCities());
+    	cmbCitta.getItems().addAll(citta);
     }
 }
