@@ -60,7 +60,7 @@ public class FXMLController {
     	try {
     		soglia = Double.parseDouble(txtX.getText()) ;
     	} catch(NumberFormatException ex) {
-    		txtResult.appendText("ERRORE: Il campo soglia deve essere numerico\n");
+    		txtResult.appendText("ERRORE: Il campo soglia deve essere di tipo numerico\n");
     		return ;
     	}
     	
