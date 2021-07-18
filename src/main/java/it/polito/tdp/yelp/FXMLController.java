@@ -58,31 +58,27 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	
     	txtResult.clear();
-    	if(cmbCitta==null) {
-    		txtResult.appendText("Seleziona una città");
+    	if(cmbCitta.getValue()==null) {
+    		txtResult.appendText("Seleziona una città della tendina\n\n");
     		return;
     	}
-    	if(cmbAnno==null) {
-    		txtResult.appendText("Seleziona un anno");
+    	if(cmbAnno.getValue()==null) {
+    		txtResult.appendText("Seleziona un anno della tendina\n\n");
     		return;
     	}
-    	String msg = model.doCreaGrafo(cmbCitta.getValue(), cmbAnno.getValue());
+    	String msg = model.doCreaGrafo(cmbAnno.getValue(), cmbCitta.getValue());
     	txtResult.appendText(msg);
     }
 
     @FXML
     void doLocaleMigliore(ActionEvent event) {
-    	if(cmbCitta==null) {
-    		txtResult.appendText("Seleziona una città");
-    		return;
-    	}
-    	if(cmbAnno==null) {
-    		txtResult.appendText("Seleziona un anno");
-    		return;
-    	}
+    	
+    	
     	String msg = model.doLocaleMigliore();
     	txtResult.appendText(msg);
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -99,18 +95,13 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
-    	List<Integer> anni =new  ArrayList<>();
-    	anni.add(2005);
-    	anni.add(2006);
-    	anni.add(2007);
-    	anni.add(2008);
-    	anni.add(2009);
-    	anni.add(2010);
-    	anni.add(2011);
-    	anni.add(2012);
-    	anni.add(2013);
-    	cmbAnno.getItems().addAll(anni);
-    	List<String> citta = new ArrayList<>(model.getCities());
-    	cmbCitta.getItems().addAll(citta);
+    	cmbCitta.getItems().clear();
+    	cmbAnno.getItems().clear();
+    	cmbCitta.getItems().addAll(model.getAllCity());
+    	for(int i=2005; i<2013; i++) {
+    		cmbAnno.getItems().add(i);
+    	}
+    	
+    	
     }
 }

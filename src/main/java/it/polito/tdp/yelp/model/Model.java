@@ -9,34 +9,28 @@ import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
 import it.polito.tdp.yelp.db.YelpDao;
 
 public class Model {
-	Map<String,Business> businessIDMap;
-	private Graph<Business, DefaultWeightedEdge> grafo;
 	
-	public Model() {
-		businessIDMap = new HashMap<>();
+	Graph<Business, DefaultWeightedEdge> grafo;
+	Map<String, Business> businessIdMap;
+	
+	public String doCreaGrafo(int anno, String city) {
 		YelpDao dao = new YelpDao();
-		List<Business> business = new ArrayList<>(dao.getAllBusiness());
-		for(Business b: business) {
-			businessIDMap.put(b.getBusinessId(), b);
+		businessIdMap = new HashMap<>();
+		grafo = new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
+		for(Business b: dao.getAllBusiness()) {
+			businessIdMap.put(b.getBusinessId(), b);
 		}
-	}
-	
-	public String doCreaGrafo(String citta, int anno) {
-		YelpDao dao = new YelpDao();
-		grafo =  new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
-		List<String> bid= new ArrayList<>(dao.getVertici(citta, anno));
-		List<Business> b = new ArrayList<>();
-		for(String s : bid)
-			b.add(businessIDMap.get(s));
-		Graphs.addAllVertices(grafo, b);
-		List<EdgeAndWeight> archi = new ArrayList<>(dao.getArchi(citta, anno));
-		for(EdgeAndWeight e: archi)
-			Graphs.addEdge(grafo, businessIDMap.get(e.getId2()), businessIDMap.get(e.getId1()), e.getPeso());
-		
+		List<String> vertexId = new ArrayList<>(dao.getVertex(anno, city));
+		for(String id:vertexId)
+			grafo.addVertex(businessIdMap.get(id));
+		List<EdgeAndWeight> eaw = new ArrayList<>(dao.getEdgeAndWeight(anno, city));
+		for(EdgeAndWeight e: eaw)
+			Graphs.addEdge(grafo, businessIdMap.get(e.getBusinessId1()), businessIdMap.get(e.getBusinessId2()), e.getPeso());
 		String result = "";
 		if(this.grafo==null) {
 			result ="Grafo non creato";
@@ -46,30 +40,30 @@ public class Model {
 		return result;
 	}
 	
-	public String doLocaleMigliore(){
-		double pesoMax = 0.0;
-		List<Business> bs = new ArrayList<>(businessIDMap.values());
-		Business busi = bs.get(0);
+	public String doLocaleMigliore() {
+		Business business=null;
+		double migliore = 0.0;
 		for(Business b: grafo.vertexSet()) {
 			double entranti = 0.0;
 			double uscenti = 0.0;
-			for(DefaultWeightedEdge e: grafo.incomingEdgesOf(b)) {
-				entranti+=grafo.getEdgeWeight(e);
-			}
-			for(DefaultWeightedEdge e: grafo.outgoingEdgesOf(b)) {
-				uscenti+=grafo.getEdgeWeight(e);
-			}
-			double differenza = entranti - uscenti;
-			if(differenza>pesoMax) {
-				pesoMax = differenza;
-				busi = b;
+			for(Business b1: Graphs.predecessorListOf(grafo, b))
+				entranti+=grafo.getEdgeWeight(grafo.getEdge(b1, b));
+			for(Business b2: Graphs.successorListOf(grafo, b))
+				uscenti+=grafo.getEdgeWeight(grafo.getEdge(b, b2));
+			double diff = entranti-uscenti;
+			if(diff>migliore) {
+				migliore = diff;
+				business=b;
 			}
 		}
-		return "LOCALE MIGLIORE : "+busi.getBusinessName()+"\n\n";
+		return business.toString();
 	}
-	public List<String> getCities(){
-		YelpDao dao = new YelpDao();
-		return dao.getCities();
+	
+	
+	public List<String> getAllCity () {
+		YelpDao dao = new YelpDao ();
+		return dao.getAllCity();
 	}
+	
 	
 }

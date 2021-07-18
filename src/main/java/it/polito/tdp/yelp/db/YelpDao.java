@@ -13,33 +13,28 @@ import it.polito.tdp.yelp.model.Review;
 import it.polito.tdp.yelp.model.User;
 
 public class YelpDao {
-
 	
-
-	public List<EdgeAndWeight> getArchi(String citta, int anno){
-		String sql ="select b.business_id as id1 ,b1.business_id as id2, (avg(r.stars)-avg(r1.stars)) as peso "
-				+ "from Business b, Reviews r, Business b1, Reviews r1 "
-				+ "where b.business_id = r.business_id "
-				+ "and b.city =? "
-				+ "and year(r.review_date)=? "
-				+ "and b1.business_id = r1.business_id "
-				+ "and b1.city =? "
-				+ "and year(r1.review_date)=? "
-				+ "and b.business_id<>b1.business_id "
-				+ "group by b.business_id,b1.business_id "
-				+ "having peso>'0'";
+	public List<EdgeAndWeight> getEdgeAndWeight(int anno, String city){
+		String sql="select b1.business_id as id1,b2.business_id as id2, avg(r2.stars)-avg(r1.stars) as peso "
+				+ "from Business b1, Reviews r1, Business b2, Reviews r2 "
+				+ "where b1.business_id = r1.business_id "
+				+ "and b2.business_id = r2.business_id "
+				+ "and year(r2.review_date) =year(r1.review_date) and year(r1.review_date) =? and b2.city=b1.city and b1.city=? "
+				+ "and b1.business_id<>b2.business_id "
+				+ "group by b1.business_id,b2.business_id "
+				+ "having peso>0";
 		List<EdgeAndWeight> result = new ArrayList<>();
 		Connection conn = DBConnect.getConnection();
-		
+
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
-			st.setString(1, citta);
-			st.setInt(2, anno);
-			st.setString(3, citta);
-			st.setInt(4, anno);
+			st.setInt(1, anno);
+			st.setString(2, city);
+			
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
-				result.add(new EdgeAndWeight(res.getString("id1"),res.getString("id2"),res.getInt("peso")));
+
+				result.add(new EdgeAndWeight(res.getString("id1"),res.getString("id2"),res.getDouble("peso")));
 			}
 			res.close();
 			st.close();
@@ -52,22 +47,20 @@ public class YelpDao {
 		}
 	}
 	
-	
-	public List<String> getVertici(String citta, int anno){
-		String sql= "select distinct b.business_id as id "
+	public List<String> getVertex(int anno, String city){
+		String sql="select distinct b.business_id as id "
 				+ "from Business b, Reviews r "
-				+ "where b.business_id = r.business_id "
-				+ "and b.city =? "
-				+ "and year(r.review_date)=?";
+				+ "where b.business_id = r.business_id and year(r.review_date) =? and b.city=?";
 		List<String> result = new ArrayList<>();
 		Connection conn = DBConnect.getConnection();
-		
+
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
-			st.setString(1, citta);
-			st.setInt(2, anno);
+			st.setInt(1, anno);
+			st.setString(2, city);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
+
 				result.add(res.getString("id"));
 			}
 			res.close();
@@ -81,16 +74,19 @@ public class YelpDao {
 		}
 	}
 	
-	public List<String> getCities(){
+
+	public List<String> getAllCity(){
 		String sql="select distinct city as c "
-				+ "from Business";
+				+ "from Business "
+				+ "order by city asc";
 		List<String> result = new ArrayList<>();
 		Connection conn = DBConnect.getConnection();
-		
+
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
+
 				result.add(res.getString("c"));
 			}
 			res.close();

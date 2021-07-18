@@ -1,35 +1,33 @@
 package it.polito.tdp.yelp.model;
 
 public class EdgeAndWeight {
-	String id1;
-	String id2;
-	Integer peso;
-	public EdgeAndWeight(String id1, String id2,Integer peso ) {
+	String businessId1;
+	String businessId2;
+	Double peso;
+	public EdgeAndWeight(String businessId1, String businessId2, Double peso) {
 		super();
-		this.id1 = id1;
-		this.id2 = id2;
+		this.businessId1 = businessId1;
+		this.businessId2 = businessId2;
 		this.peso = peso;
 	}
-	
-	public String getId1() {
-		return id1;
+	public String getBusinessId1() {
+		return businessId1;
 	}
-	public void setId1(String id1) {
-		this.id1 = id1;
+	public void setBusinessId1(String businessId1) {
+		this.businessId1 = businessId1;
 	}
-	public String getId2() {
-		return id2;
+	public String getBusinessId2() {
+		return businessId2;
 	}
-	public void setId2(String id2) {
-		this.id2 = id2;
+	public void setBusinessId2(String businessId2) {
+		this.businessId2 = businessId2;
 	}
-	public Integer getPeso() {
+	public Double getPeso() {
 		return peso;
 	}
-	public void setPeso(Integer peso) {
+	public void setPeso(Double peso) {
 		this.peso = peso;
 	}
 	
-;
-	
+
 }
